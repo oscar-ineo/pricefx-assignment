@@ -80,8 +80,8 @@ fixedMargins = fixMargins(margins)
  * @param margins The margins map with diverse percentage formats.
  * @return The list of margins with the unified percentage format.
  */
-static LinkedHashMap<String, Double> fixMargins(LinkedHashMap<String, String> margins) {
-    LinkedHashMap<String, Double> finalMargins = []
+static LinkedHashMap<String, BigDecimal> fixMargins(LinkedHashMap<String, String> margins) {
+    LinkedHashMap<String, BigDecimal> finalMargins = []
 
     for (margin in margins) {
         finalMargins.put(margin.key, convertMargin(margin.value))
@@ -91,18 +91,18 @@ static LinkedHashMap<String, Double> fixMargins(LinkedHashMap<String, String> ma
 }
 
 /**
- * As we can have multiple margin formats, we unify them in double format for convenience.
+ * As we can have multiple margin formats, we unify them in BigDecimal format for convenience.
  * @param margin The margin in percentage or decimal format
- * @return The margin in double format
+ * @return The margin in BigDecimal format
  */
-static Double convertMargin(String margin) {
+static BigDecimal convertMargin(String margin) {
     if (margin.contains("%")) {
         margin = margin.replace("%", "")
-        def newMargin = Double.parseDouble(margin)
+        def newMargin = new BigDecimal(margin)
         newMargin = newMargin / 100
         return newMargin
     } else {
-        return Double.parseDouble(margin)
+        return new BigDecimal(margin)
     }
 }
 
@@ -112,7 +112,7 @@ static Double convertMargin(String margin) {
  * @param categories Available categories
  * @return
  */
-Double calculatePrice(Double cost) {
+BigDecimal calculatePrice(BigDecimal cost) {
     String category = getCategory(cost)
 
     if (category == null) {
@@ -127,7 +127,7 @@ Double calculatePrice(Double cost) {
  * @param cost Cost of the product
  * @return The category given to a cost
  */
-String getCategory(Double cost) {
+String getCategory(BigDecimal cost) {
     for (List<Serializable> category in orderedCategories) {
         Integer minValue = category.get(1) as Integer
         Integer maxValue = category.get(2) as Integer
@@ -145,23 +145,23 @@ String getCategory(Double cost) {
  * @param products The unaltered product list
  * @return A map containing the average prices for each product following the format: ["keyGroup" : valueAverage, ... ]
  */
-HashMap<String, Double> calculateAveragePrices(ArrayList<List<Serializable>> products) {
-    HashMap<String, Double> result = new HashMap<>()
+HashMap<String, BigDecimal> calculateAveragePrices(ArrayList<List<Serializable>> products) {
+    HashMap<String, BigDecimal> result = new HashMap<>()
 
     for (String group in groupOrder) {
-        Double sum = 0.0
+        BigDecimal sum = 0.0
         ArrayList<List<Serializable>> groupProducts = products.findAll({ ( it.get(1) == group ) })
 
         for (product in groupProducts) {
-            sum += calculatePrice(product.get(2) as Double)
+            sum += calculatePrice(product.get(2) as BigDecimal)
         }
 
         if (groupProducts.size() > 4) {
-            Double average = sum / groupProducts.size()
+            BigDecimal average = sum / groupProducts.size()
             average = (average - average * 0.2)
             result.put(group, average.round(1))
         } else {
-            Double average = sum / groupProducts.size()
+            BigDecimal average = sum / groupProducts.size()
             result.put(group, average.round(1))
         }
     }
