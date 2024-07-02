@@ -69,9 +69,9 @@ def margins = [
 //
 // ---------------------------
 
-groupOrder = [ "G1", "G2", "G3" ]
-def categoryOrder = [ "C1", "C2", "C3", "C4", "C5" ]
-orderedCategories = category.sort { a, b -> categoryOrder.indexOf( a.get(0) ) <=> categoryOrder.indexOf( b.get(0) ) }
+groupOrder = ["G1", "G2", "G3"]
+def categoryOrder = ["C1", "C2", "C3", "C4", "C5"]
+orderedCategories = category.sort { a, b -> categoryOrder.indexOf(a.get(0)) <=> categoryOrder.indexOf(b.get(0)) }
 fixedMargins = fixMargins(margins)
 
 /**
@@ -83,9 +83,7 @@ fixedMargins = fixMargins(margins)
 static LinkedHashMap<String, BigDecimal> fixMargins(LinkedHashMap<String, String> margins) {
     LinkedHashMap<String, BigDecimal> finalMargins = []
 
-    for (margin in margins) {
-        finalMargins.put(margin.key, convertMargin(margin.value))
-    }
+    margins.entrySet().forEach { margin -> finalMargins.put(margin.key, convertMargin(margin.value)) }
 
     return finalMargins
 }
@@ -150,11 +148,9 @@ HashMap<String, BigDecimal> calculateAveragePrices(ArrayList<List<Serializable>>
 
     for (String group in groupOrder) {
         BigDecimal sum = 0.0
-        ArrayList<List<Serializable>> groupProducts = products.findAll({ ( it.get(1) == group ) })
+        ArrayList<List<Serializable>> groupProducts = products.findAll({ (it.get(1) == group) })
 
-        for (product in groupProducts) {
-            sum += calculatePrice(product.get(2) as BigDecimal)
-        }
+        groupProducts.forEach { product -> sum += calculatePrice(product.get(2) as BigDecimal) }
 
         if (groupProducts.size() > 4) {
             BigDecimal average = sum / groupProducts.size()
@@ -169,7 +165,7 @@ HashMap<String, BigDecimal> calculateAveragePrices(ArrayList<List<Serializable>>
     return result
 }
 
-def result= calculateAveragePrices(products)
+def result = calculateAveragePrices(products)
 
 // ---------------------------
 //
